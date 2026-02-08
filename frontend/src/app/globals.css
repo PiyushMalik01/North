@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/* Design System - Edit theme.config.ts for global changes */
+:root {
+  /* Dark Theme (Default) */
+  --background: #0D1117;
+  --background-secondary: #161B22;
+  --foreground: #FFFFFF;
+  
+  /* Brand Colors */
+  --brand-blue: #08398C;
+  --brand-purple: #9A6DE3;
+  
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #C9D1D9;
+  --text-muted: #8B949E;
+  
+  /* UI Colors */
+  --border-color: #30363D;
+  --border-hover: #484F58;
+  --card-bg: #161B22;
+  --card-hover: #1C2128;
+  
+  /* Additional */
+  --background-primary: #0D1117;
+  
+  /* Fonts */
+  --font-primary: var(--font-roboto-condensed);
+  --font-logo: var(--font-oswald);
+}
+
+/* Light Theme */
+:root.light {
+  --background: #FFFFFF;
+  --background-secondary: #F6F8FA;
+  --foreground: #24292F;
+  
+  --brand-blue: #0969DA;
+  --brand-purple: #8250DF;
+  
+  --text-primary: #24292F;
+  --text-secondary: #57606A;
+  --text-muted: #6E7781;
+  
+  --border-color: #D0D7DE;
+  --border-hover: #D8DEE4;
+  --card-bg: #FFFFFF;
+  --card-hover: #F6F8FA;
+  
+  /* Additional */
+  --background-primary: #FFFFFF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-primary);
+  --font-display: var(--font-logo);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-primary), Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Smooth transitions for text and borders */
+* {
+  transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Keep smooth transitions for interactive elements */
+button, a, input, select, textarea {
+  transition: all 0.3s ease;
+}
+
+/* Custom gradient utility */
+.gradient-hero {
+  background: linear-gradient(180deg, rgba(13, 17, 23, 1) 0%, rgba(8, 57, 140, 1) 50%, rgba(154, 109, 227, 1) 85%, rgba(13, 17, 23, 1) 100%);
+}
+
+:root.light .gradient-hero {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(219, 234, 254, 1) 50%, rgba(233, 213, 255, 1) 85%, rgba(255, 255, 255, 1) 100%);
+}
+
+.gradient-brand {
+  background: linear-gradient(to right, #08398C, #9A6DE3);
+}
+
+.gradient-glow {
+  background: radial-gradient(ellipse 100% 50% at 50% 0%, rgba(8, 57, 140, 0.6) 0%, rgba(8, 57, 140, 0.3) 30%, #0D1117 70%);
+}
+
+:root.light .gradient-glow {
+  background: radial-gradient(ellipse 100% 50% at 50% 0%, rgba(9, 105, 218, 0.4) 0%, rgba(9, 105, 218, 0.2) 30%, #FFFFFF 70%);
+}
+
+.gradient-brand-text {
+  background: linear-gradient(to right, #08398C, #9A6DE3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:root.light .gradient-brand-text {
+  background: linear-gradient(to right, #0969DA, #8250DF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+:root.light .gradient-brand {
+  background: linear-gradient(to right, #0969DA, #8250DF);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-blue);
+}
+
