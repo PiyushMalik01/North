@@ -142,3 +142,59 @@ html {
   background: var(--brand-blue);
 }
 
+/* Brutalist Card Design */
+.brutalist-card {
+  position: relative;
+  background-color: var(--card-bg);
+  border: 3px solid var(--text-primary);
+  padding: 1rem;
+  box-shadow: 6px 6px 0 var(--text-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+@media (min-width: 400px) {
+  .brutalist-card {
+    border-width: 4px;
+    padding: 1.25rem;
+    box-shadow: 8px 8px 0 var(--text-primary);
+  }
+  
+  .brutalist-card:hover {
+    box-shadow: 12px 12px 0 var(--text-primary);
+  }
+}
+
+@media (min-width: 1024px) {
+  .brutalist-card {
+    padding: 1.75rem;
+    box-shadow: 10px 10px 0 var(--text-primary);
+  }
+  
+  .brutalist-card:hover {
+    box-shadow: 14px 14px 0 var(--text-primary);
+  }
+}
+
+@media (min-width: 1280px) {
+  .brutalist-card {
+    padding: 2rem;
+    box-shadow: 12px 12px 0 var(--text-primary);
+  }
+  
+  .brutalist-card:hover {
+    box-shadow: 16px 16px 0 var(--text-primary);
+  }
+}
+
+.brutalist-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0 var(--text-primary);
+  background-color: var(--card-hover);
+}
+
+.brutalist-card:active {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0 var(--text-primary);
+}
+
+

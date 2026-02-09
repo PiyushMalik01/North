@@ -27,60 +27,49 @@ export const Navbar = () => {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        scrolled ? 'bg-[var(--background-primary)] shadow-lg border-b border-[var(--border-color)]' : 'bg-[var(--background-primary)]'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link
-              href="/"
-              className="text-2xl font-bold text-[var(--text-primary)] font-[family-name:var(--font-oswald)] tracking-wider hover:opacity-80 transition-opacity"
-            >
-              NORTH
-            </Link>
-          </div>
-
-          {/* Desktop Center Menu */}
-          <div className="hidden md:flex items-center space-x-1">
-            {menuItems.map((item) => (
-              <div
-                key={item.name}
-                className="relative"
-                onMouseEnter={() => setActiveMenu(item.name)}
-                onMouseLeave={() => setActiveMenu(null)}
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled ? 'bg-[var(--background-primary)] shadow-lg' : 'bg-transparent'
+        }`}
+      >
+        <div className="px-4 min-[400px]:px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-24">
+          <div className="flex justify-between items-center h-16 lg:h-20 xl:h-24">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link
+                href="/"
+                className="text-xl min-[400px]:text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] font-[family-name:var(--font-oswald)] tracking-wider"
               >
-                <button className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                NORTH
+              </Link>
+            </div>
+
+            {/* Desktop Right Section */}
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-8 xl:space-x-10">
+              {menuItems.map((item) => (
+                <button
+                  key={item.name}
+                  onMouseEnter={() => setActiveMenu(item.name)}
+                  className="text-sm lg:text-base xl:text-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors font-medium"
+                >
                   {item.name}
                 </button>
-                <OverlayMenu
-                  columns={item.data.columns}
-                  bottomText={item.data.bottomText}
-                  isOpen={activeMenu === item.name}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop Right Section */}
-          <div className="hidden md:flex items-center space-x-4">
-            <ThemeToggle />
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-all shadow-sm hover:shadow-md"
-            >
-              Sign Up
-            </Link>
-          </div>
+              ))}
+              <Link
+                href="/login"
+                className="text-sm lg:text-base xl:text-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-5 py-2 lg:px-6 lg:py-2.5 xl:px-8 xl:py-3 bg-[#040642] text-white rounded-lg font-semibold text-sm lg:text-base xl:text-lg hover:bg-[#0D1117] transition-all border border-[#484F58] shadow-[0_4px_15px_rgba(4,6,66,0.4)] hover:shadow-[0_6px_20px_rgba(13,17,23,0.5)] backdrop-blur-sm"
+              >
+                Sign Up
+              </Link>
+              <ThemeToggle />
+            </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -149,17 +138,16 @@ export const Navbar = () => {
               </details>
             ))}
             <div className="pt-4 border-t border-[var(--border-color)] space-y-3">
-              <ThemeToggle />
               <Link
                 href="/login"
-                className="block text-center px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className="block text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-4"
               >
                 Login
               </Link>
-              <Link
-                href="/signup"
-                className="block text-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
-              >
+              <div className="px-4">
+                <ThemeToggle />
+              </div>
+              <Link href="/signup" className="block text-[var(--brand-purple)] font-semibold px-4">
                 Sign Up
               </Link>
             </div>
@@ -167,6 +155,26 @@ export const Navbar = () => {
         )}
       </div>
     </nav>
+    
+    {/* Full-width overlay - keep open when hovering */}
+    {activeMenu && (
+      <div
+        onMouseEnter={() => {}} 
+        onMouseLeave={() => setActiveMenu(null)}
+      >
+        {menuItems.map((item) => (
+          <div key={item.name}>
+            {activeMenu === item.name && (
+              <OverlayMenu
+                columns={item.data.columns}
+                bottomText={item.data.bottomText}
+                isOpen={true}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+    </>
   );
 };
-         
