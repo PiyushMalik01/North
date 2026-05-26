@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+:root {
+  --background:          #0A0A0B;
+  --background-secondary: #111113;
+  --foreground:          #EDEDEF;
+
+  --surface-1:           #111113;
+  --surface-2:           #191A1C;
+  --surface-3:           #222326;
+
+  --grid-line:           rgba(255, 255, 255, 0.04);
+
+  --brand-blue:          #3B82F6;
+  --brand-yellow:        #EFC028;
+
+  --accent:              #EFC028;
+  --accent-hover:        #F5CE4D;
+  --accent-muted:        rgba(239, 192, 40, 0.12);
+  --accent-text:         #F5D04F;
+  --accent-fg:           #0A0A0B;
+
+  --text-primary:        #EDEDEF;
+  --text-secondary:      #A0A0A8;
+  --text-muted:          #5C5C66;
+
+  --border-color:        rgba(255, 255, 255, 0.08);
+  --border-hover:        rgba(255, 255, 255, 0.14);
+
+  --card-bg:             #111113;
+  --card-hover:          #191A1C;
+
+  --background-primary:  #0A0A0B;
+
+  --skill-unlocked:      #3B82F6;
+  --skill-completed:     #22C55E;
+  --skill-in-progress:   #EFC028;
+
+  --font-primary: var(--font-roboto-condensed);
+  --font-logo: var(--font-oswald);
+}
+
+:root.light {
+  --background:          #FAFAFA;
+  --background-secondary: #F4F4F5;
+  --foreground:          #18181B;
+
+  --surface-1:           #FFFFFF;
+  --surface-2:           #F4F4F5;
+  --surface-3:           #E4E4E7;
+
+  --brand-blue:          #2563EB;
+  --brand-yellow:        #E5A500;
+
+  --accent:              #E5A500;
+  --accent-hover:        #CC9200;
+  --accent-muted:        rgba(229, 165, 0, 0.10);
+  --accent-text:         #C48800;
+  --accent-fg:           #18181B;
+
+  --text-primary:        #18181B;
+  --text-secondary:      #52525B;
+  --text-muted:          #A1A1AA;
+
+  --border-color:        rgba(0, 0, 0, 0.08);
+  --border-hover:        rgba(0, 0, 0, 0.14);
+
+  --card-bg:             #FFFFFF;
+  --card-hover:          #F4F4F5;
+
+  --background-primary:  #FAFAFA;
+
+  --grid-line:           rgba(0, 0, 0, 0.07);
+
+  --skill-unlocked:      #2563EB;
+  --skill-completed:     #16A34A;
+  --skill-in-progress:   #D4A017;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-primary);
+  --font-display: var(--font-logo);
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(239, 192, 40, 0.25);
+  color: var(--text-primary);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-primary), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html:not([style*="--disable-transitions"]) body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html:not([style*="--disable-transitions"]) button,
+html:not([style*="--disable-transitions"]) a,
+html:not([style*="--disable-transitions"]) input,
+html:not([style*="--disable-transitions"]) select,
+html:not([style*="--disable-transitions"]) textarea {
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Gradient utilities — used sparingly */
+.gradient-hero {
+  background: radial-gradient(ellipse at 50% 0%, rgba(239, 192, 40, 0.06) 0%, transparent 60%);
+}
+
+:root.light .gradient-hero {
+  background: radial-gradient(ellipse at 50% 0%, rgba(229, 165, 0, 0.08) 0%, transparent 60%);
+}
+
+.gradient-glow {
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(239, 192, 40, 0.04) 0%, transparent 70%);
+}
+
+:root.light .gradient-glow {
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(229, 165, 0, 0.06) 0%, transparent 70%);
+}
+
+/* Global pixel grid overlay — 8px cells match hero pixel size */
+.pixel-grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* View Transitions — theme toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* GSAP Animation Utilities */
+.gsap-reveal {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gsap-reveal {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

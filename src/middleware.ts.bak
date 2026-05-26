@@ -1,0 +1,33 @@
+import { auth } from '@/lib/auth';
+
+export default auth((req) => {
+  const isLoggedIn = !!req.auth;
+  const { pathname } = req.nextUrl;
+
+  const protectedPaths = ['/dashboard', '/profile', '/skills', '/assessments'];
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+
+  if (isProtected && !isLoggedIn) {
+    const loginUrl = new URL('/login', req.nextUrl.origin);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return Response.redirect(loginUrl);
+  }
+
+  const authPaths = ['/login', '/signup'];
+  const isAuthPage = authPaths.some((path) => pathname.startsWith(path));
+
+  if (isAuthPage && isLoggedIn) {
+    return Response.redirect(new URL('/dashboard', req.nextUrl.origin));
+  }
+});
+
+export const config = {
+  matcher: [
+    '/dashboard/:path*',
+    '/profile/:path*',
+    '/skills/:path*',
+    '/assessments/:path*',
+    '/login',
+    '/signup',
+  ],
+};
