@@ -41,7 +41,10 @@ export const Hero = () => {
   }, []);
 
   return (
-    <section className="relative pt-28 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+    <section className="relative pt-28 pb-20 lg:pt-40 lg:pb-28 overflow-hidden hero-section">
+      {/* Dark base for light theme so video pops */}
+      <div className="absolute inset-0 bg-transparent light-hero-dark" />
+
       {/* Video pixel grid background */}
       <div className="absolute inset-0">
         <HeroVideoGrid />

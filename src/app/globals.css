@@ -70,7 +70,7 @@
 
   --background-primary:  #FAFAFA;
 
-  --grid-line:           rgba(0, 0, 0, 0.07);
+  --grid-line:           rgba(0, 0, 0, 0.15);
 
   --skill-unlocked:      #2563EB;
   --skill-completed:     #16A34A;
@@ -141,6 +141,26 @@ html:not([style*="--disable-transitions"]) textarea {
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 8px 8px;
+}
+
+/* Light theme: dark hero so video pixels pop */
+:root.light .light-hero-dark {
+  background: #0A0A0B;
+}
+:root.light .hero-section {
+  --background: #0A0A0B;
+  --text-primary: #EDEDEF;
+  --text-secondary: #A0A0A8;
+  --text-muted: #5C5C66;
+  --accent-text: #F5D04F;
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+/* Light theme: navbar text light when over dark hero */
+:root.light .nav-over-hero {
+  --text-primary: #EDEDEF;
+  --text-secondary: #A0A0A8;
+  --text-muted: #5C5C66;
+  --border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Scrollbar */

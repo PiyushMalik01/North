@@ -32,16 +32,17 @@ export const Navbar = () => {
   const showPill = scrolled && isLanding && !isPlatform;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav className={cn(
+      'fixed top-0 left-0 right-0 z-50',
+      !scrolled && isLanding && 'nav-over-hero'
+    )}>
       {/* Full-width background layer */}
       <div
         className={cn(
           'absolute inset-0 transition-all duration-500',
           !showPill && (scrolled || isPlatform)
             ? 'bg-[var(--background)]/85 backdrop-blur-xl border-b border-[var(--border-color)] opacity-100'
-            : !scrolled && isLanding
-              ? 'bg-gradient-to-b from-[var(--background)]/60 to-transparent opacity-100'
-              : 'opacity-0'
+            : 'opacity-0'
         )}
       />
 

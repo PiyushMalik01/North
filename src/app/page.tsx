@@ -8,6 +8,7 @@ import { Differentiator } from '@/components/landing/Differentiator';
 import { CTA } from '@/components/landing/CTA';
 import { Footer } from '@/components/shared/Footer';
 import { PixelDivider } from '@/components/landing/PixelDivider';
+import { PixelTransition } from '@/components/landing/PixelTransition';
 import { PixelSignature } from '@/components/landing/PixelSignature';
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
       <Navbar />
       <main className="relative z-[2]">
         <Hero />
+        <PixelTransition />
         <PixelDivider variant="wave" color="#EFC028" />
         <Problem />
         <PixelDivider variant="flow" color="#EF4444" speed={0.8} />
