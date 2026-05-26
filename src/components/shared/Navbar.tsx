@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 import { AnimatedLogo } from './AnimatedLogo';
 import { useLogoAnimation } from '@/hooks/useLogoAnimation';
+import { useThemeStore } from '@/store/themeStore';
 
 const navLinks = [
   { name: 'Features', href: '/#features' },
@@ -20,8 +21,10 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { shouldAnimate, markAnimationComplete } = useLogoAnimation();
+  const { theme } = useThemeStore();
   const isPlatform = pathname?.startsWith('/codespaces') || pathname?.startsWith('/dashboard');
   const isLanding = pathname === '/' || pathname === '/blog';
+  const overHero = !scrolled && isLanding;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -30,11 +33,12 @@ export const Navbar = () => {
   }, []);
 
   const showPill = scrolled && isLanding && !isPlatform;
+  const forceDarkLogo = overHero && theme === 'light';
 
   return (
     <nav className={cn(
       'fixed top-0 left-0 right-0 z-50',
-      !scrolled && isLanding && 'nav-over-hero'
+      overHero && 'nav-over-hero'
     )}>
       {/* Full-width background layer */}
       <div
@@ -65,6 +69,7 @@ export const Navbar = () => {
             size={showPill ? 'w-[1.5em]' : 'w-[2em]'}
             shouldAnimate={shouldAnimate}
             onAnimationComplete={markAnimationComplete}
+            forceDarkLogo={forceDarkLogo}
           />
           <span className={cn(
             'relative z-10 transition-all duration-[600ms]',

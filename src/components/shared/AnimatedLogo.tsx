@@ -9,11 +9,13 @@ interface AnimatedLogoProps {
   size: string;
   shouldAnimate?: boolean;
   onAnimationComplete?: () => void;
+  forceDarkLogo?: boolean;
 }
 
-export const AnimatedLogo = ({ size, shouldAnimate = false, onAnimationComplete }: AnimatedLogoProps) => {
+export const AnimatedLogo = ({ size, shouldAnimate = false, onAnimationComplete, forceDarkLogo = false }: AnimatedLogoProps) => {
   const logoWrapperRef = useRef<HTMLSpanElement>(null);
   const { theme } = useThemeStore();
+  const useDarkLogo = forceDarkLogo || theme === 'dark';
 
   useEffect(() => {
     if (!shouldAnimate || !logoWrapperRef.current) return;
@@ -68,7 +70,7 @@ export const AnimatedLogo = ({ size, shouldAnimate = false, onAnimationComplete 
   return (
     <span ref={logoWrapperRef} className="inline-block select-none">
       <Image
-        src={theme === 'light' ? '/images/light_themelogo.svg' : '/images/dark_themelogo.svg'}
+        src={useDarkLogo ? '/images/dark_themelogo.svg' : '/images/light_themelogo.svg'}
         alt="North Logo"
         width={100}
         height={100}
