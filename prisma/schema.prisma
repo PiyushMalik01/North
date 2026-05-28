@@ -6,6 +6,8 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── Auth (NextAuth) ───────────────────────────────────────
+
 enum Role {
   STUDENT
   TEACHER
@@ -28,6 +30,12 @@ model User {
 
   accounts Account[]
   sessions Session[]
+
+  profile         UserProfile?
+  skillProgress   UserSkillProgress[]
+  assessments     AssessmentResult[]
+  quests          UserQuest[]
+  activityLog     ActivityLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -70,4 +78,258 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+// ─── User Profile (from onboarding) ───────────────────────
+
+model UserProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  interests       String[]
+  goal            String?
+  personalityType String?
+  personalitySummary String?
+
+  theoryVsHandsOn   Int @default(50)
+  soloVsCollab       Int @default(50)
+  sprintVsMarathon   Int @default(50)
+  guidedVsExplore    Int @default(50)
+
+  depth         Int @default(50)
+  execution     Int @default(50)
+  consistency   Int @default(50)
+  collaboration Int @default(50)
+  clarity       Int @default(50)
+
+  xp        Int @default(0)
+  rank      String @default("Newcomer")
+  dayStreak Int @default(0)
+  lastActiveDate DateTime?
+
+  onboardingCompleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Skill Trees ──────────────────────────────────────────
+
+model SkillTree {
+  id          String @id @default(cuid())
+  slug        String @unique
+  name        String
+  description String
+  category    String
+  sortOrder   Int    @default(0)
+
+  nodes SkillNode[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model SkillNode {
+  id             String     @id @default(cuid())
+  slug           String
+  name           String
+  description    String
+  estimatedHours Float
+  difficulty     Difficulty
+  topics         String[]
+  sortOrder      Int        @default(0)
+
+  treeId String
+  tree   SkillTree @relation(fields: [treeId], references: [id], onDelete: Cascade)
+
+  prerequisites SkillPrerequisite[] @relation("skill")
+  dependents    SkillPrerequisite[] @relation("prerequisite")
+
+  progress    UserSkillProgress[]
+  assessments Assessment[]
+  content     LearningContent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([treeId, slug])
+}
+
+model SkillPrerequisite {
+  skillId        String
+  prerequisiteId String
+
+  skill        SkillNode @relation("skill", fields: [skillId], references: [id], onDelete: Cascade)
+  prerequisite SkillNode @relation("prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+
+  @@id([skillId, prerequisiteId])
+}
+
+// ─── User Skill Progress ──────────────────────────────────
+
+enum SkillStatus {
+  LOCKED
+  UNLOCKED
+  IN_PROGRESS
+  COMPLETED
+  REINFORCED
+}
+
+model UserSkillProgress {
+  id      String @id @default(cuid())
+  userId  String
+  skillId String
+
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill SkillNode @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  status          SkillStatus @default(LOCKED)
+  progressPercent Int         @default(0)
+  hoursSpent      Float       @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  lastPracticedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, skillId])
+}
+
+// ─── Assessments ──────────────────────────────────────────
+
+enum AssessmentType {
+  CODING
+  REASONING
+  QUIZ
+}
+
+model Assessment {
+  id          String         @id @default(cuid())
+  type        AssessmentType
+  title       String
+  description String
+  skillId     String
+  skill       SkillNode      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  difficulty Difficulty
+  timeLimit  Int?
+  points     Int        @default(100)
+
+  results AssessmentResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AssessmentResult {
+  id           String     @id @default(cuid())
+  userId       String
+  assessmentId String
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  score     Int
+  maxScore  Int
+  timeSpent Int
+  passed    Boolean
+  feedback  String?
+
+  completedAt DateTime @default(now())
+
+  @@unique([userId, assessmentId])
+}
+
+// ─── Quests / Gamification ────────────────────────────────
+
+enum QuestType {
+  SKILL
+  RECALL
+  CHALLENGE
+}
+
+enum QuestStatus {
+  ACTIVE
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+model Quest {
+  id          String    @id @default(cuid())
+  type        QuestType
+  title       String
+  description String
+  reward      Int
+  deadline    DateTime?
+
+  createdAt DateTime @default(now())
+
+  userQuests UserQuest[]
+}
+
+model UserQuest {
+  id      String @id @default(cuid())
+  userId  String
+  questId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  status      QuestStatus @default(ACTIVE)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, questId])
+}
+
+// ─── Learning Content ─────────────────────────────────────
+
+enum ContentType {
+  NOTE
+  VIDEO
+  ARTICLE
+  RESOURCE
+}
+
+model LearningContent {
+  id      String      @id @default(cuid())
+  title   String
+  type    ContentType
+  url     String?
+  body    String?     @db.Text
+  skillId String
+  skill   SkillNode   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  rating   Float @default(0)
+  duration String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Activity Log ─────────────────────────────────────────
+
+model ActivityLog {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  action   String
+  details  Json?
+  xpEarned Int   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

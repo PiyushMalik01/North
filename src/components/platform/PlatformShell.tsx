@@ -9,6 +9,7 @@ import TopBar from './TopBar';
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/skills': 'Skill Trees',
+  '/diagnostic': 'Diagnostic',
   '/codespaces': 'CodeSpaces',
   '/profile': 'Profile',
   '/settings': 'Settings',

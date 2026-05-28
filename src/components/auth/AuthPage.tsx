@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +21,7 @@ interface AuthPageProps {
 }
 
 export default function AuthPage({ initialMode }: AuthPageProps) {
+  const router = useRouter();
   const [mode, setMode] = useState(initialMode);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
@@ -97,7 +99,7 @@ export default function AuthPage({ initialMode }: AuthPageProps) {
             </AnimatePresence>
 
             {/* Form */}
-            <form className="mt-7" onSubmit={(e) => e.preventDefault()}>
+            <form className="mt-7" onSubmit={(e) => { e.preventDefault(); if (!isLogin) router.push('/onboarding'); }}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={mode}

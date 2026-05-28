@@ -13,7 +13,6 @@ import { useThemeStore } from '@/store/themeStore';
 const navLinks = [
   { name: 'Features', href: '/#features' },
   { name: 'Blog', href: '/blog' },
-  { name: 'CodeSpaces', href: '/codespaces' },
 ];
 
 export const Navbar = () => {

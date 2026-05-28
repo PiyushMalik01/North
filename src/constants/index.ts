@@ -20,6 +20,8 @@ export const ROUTES = {
   COMMUNITY: '/community',
   CHALLENGES: '/challenges',
   MARKET_INSIGHTS: '/insights',
+  ONBOARDING: '/onboarding',
+  ADMIN: '/admin',
 } as const;
 
 // Skill Categories
@@ -35,6 +37,19 @@ export const SKILL_CATEGORIES = [
   'Database',
   'Programming Languages',
 ] as const;
+
+export const SKILL_DESCRIPTIONS: Record<string, string> = {
+  'Web Development': 'build websites & apps people actually use',
+  'Mobile Development': 'create apps for phones — iOS, Android, or both',
+  'Data Science': 'find stories hidden in numbers and data',
+  'Machine Learning': 'teach computers to learn and spot patterns',
+  'DevOps': 'automate builds, deploys & keep systems alive',
+  'Cloud Computing': 'run apps at scale on AWS, Azure, or GCP',
+  'Cybersecurity': 'protect systems from hackers and threats',
+  'UI/UX Design': 'design interfaces that look great and feel right',
+  'Database': 'organize, store & query data efficiently',
+  'Programming Languages': 'master Python, Java, C++ and more',
+};
 
 // Assessment Types
 export const ASSESSMENT_TYPES = {

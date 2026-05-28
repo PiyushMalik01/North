@@ -5,31 +5,32 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
-  FiHome,
-  FiMap,
-  FiCode,
-  FiUser,
-  FiSettings,
-  FiChevronLeft,
-  FiChevronRight,
-  FiLogOut,
-} from 'react-icons/fi';
+  Home,
+  Map,
+  Compass,
+  User,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface NavItem {
   label: string;
   href: string;
-  icon: typeof FiHome;
+  icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: FiHome },
-  { label: 'Skill Trees', href: '/skills', icon: FiMap },
-  { label: 'CodeSpaces', href: '/codespaces', icon: FiCode },
-  { label: 'Profile', href: '/profile', icon: FiUser },
+  { label: 'Dashboard', href: '/dashboard', icon: Home },
+  { label: 'Skill Trees', href: '/skills', icon: Map },
+  { label: 'Diagnostic', href: '/diagnostic', icon: Compass },
+  { label: 'Profile', href: '/profile', icon: User },
 ];
 
 const bottomItems: NavItem[] = [
-  { label: 'Settings', href: '/settings', icon: FiSettings },
+  { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 interface SidebarProps {
@@ -70,7 +71,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           className="p-1.5 rounded-md hover:bg-[var(--border-color)]/30 text-[var(--text-secondary)] transition-colors"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
@@ -132,7 +133,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           )}
           title={collapsed ? 'Log Out' : undefined}
         >
-          <FiLogOut size={18} className="flex-shrink-0" />
+          <LogOut size={18} className="flex-shrink-0" />
           {!collapsed && (
             <span className="text-sm font-medium">Log Out</span>
           )}

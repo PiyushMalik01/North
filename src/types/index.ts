@@ -122,6 +122,52 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
+// Onboarding Types
+export interface OnboardingData {
+  name: string;
+  college: string;
+  year: '1st' | '2nd' | '3rd' | '4th' | 'grad';
+  interests: string[];
+  learningStyle: LearningStyleSliders;
+  personalitySwipes: Record<string, boolean>;
+  goal: 'internship' | 'placements' | 'exploring' | '';
+}
+
+export interface LearningStyleSliders {
+  theoryVsHandsOn: number;
+  soloVsCollab: number;
+  sprintVsMarathon: number;
+  guidedVsExplore: number;
+}
+
+export interface PlayerCardData {
+  personalityType: string;
+  personalityDescription: string;
+  traits: UserAttributes;
+  topInterests: string[];
+  radarData: { axis: string; value: number }[];
+}
+
+export interface SwipeCard {
+  id: string;
+  statement: string;
+  trait: keyof UserAttributes;
+  weight: number;
+}
+
+// Nor AI Analysis Types
+export interface NorAnalysis {
+  suggestedInterests: string[];
+  suggestedLearningStyle: {
+    theoryVsHandsOn: number;
+    soloVsCollab: number;
+    sprintVsMarathon: number;
+    guidedVsExplore: number;
+  };
+  suggestedGoal: 'internship' | 'placements' | 'exploring';
+  personalitySummary: string;
+}
+
 // Blog Types
 export interface BlogArticle {
   id: string;
