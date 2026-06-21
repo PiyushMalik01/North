@@ -5,3 +5,4 @@ export * from './spark';
 export * from './drift';
 export * from './gleams';
 export * from './admin';
+export * from './dive';

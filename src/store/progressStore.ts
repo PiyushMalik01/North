@@ -18,11 +18,15 @@ interface ProgressState {
   questSteps: Record<string, boolean>; // key `${questId}:${stepId}`
   savedDriftIds: string[];
   earnedGleamIds: string[];
+  completedMaterialIds: string[];
+  completedCourseIds: string[];
   attributes: Record<AttributeKey, number>;
 
   // actions
   addXp: (amount: number) => void;
   completeNode: (nodeId: string, xp?: number) => void;
+  toggleMaterial: (id: string, xp?: number) => void;
+  completeCourse: (courseId: string, xp: number) => void;
   passAssessment: (assessmentId: string, nodeId: string | undefined, xp: number) => void;
   toggleQuestStep: (questId: string, stepId: string) => void;
   claimQuest: (questId: string, xp: number) => void;
@@ -40,6 +44,8 @@ const initial = {
   questSteps: {} as Record<string, boolean>,
   savedDriftIds: [] as string[],
   earnedGleamIds: ['first-breach', 'streak-7'],
+  completedMaterialIds: [] as string[],
+  completedCourseIds: [] as string[],
   attributes: {
     depth: 64,
     execution: 48,
@@ -67,6 +73,24 @@ export const useProgressStore = create<ProgressState>()(
             s.completedNodeIds.includes(nodeId)
               ? {}
               : { completedNodeIds: [...s.completedNodeIds, nodeId], xp: s.xp + xp },
+          ),
+
+        toggleMaterial: (id, xp = 0) =>
+          set((s) => {
+            const done = s.completedMaterialIds.includes(id);
+            return {
+              completedMaterialIds: done
+                ? s.completedMaterialIds.filter((m) => m !== id)
+                : [...s.completedMaterialIds, id],
+              xp: done ? Math.max(0, s.xp - xp) : s.xp + xp,
+            };
+          }),
+
+        completeCourse: (courseId, xp) =>
+          set((s) =>
+            s.completedCourseIds.includes(courseId)
+              ? {}
+              : { completedCourseIds: [...s.completedCourseIds, courseId], xp: s.xp + xp },
           ),
 
         passAssessment: (assessmentId, nodeId, xp) =>

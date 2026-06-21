@@ -1,4 +1,4 @@
-import ContentManager from '@/components/admin/ContentManager';
+import { ContentManager } from '@/components/admin/ContentManager';
 
 export const metadata = { title: 'Content — Admin' };
 
