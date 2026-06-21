@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +26,8 @@ export default function AuthPage({ initialMode }: AuthPageProps) {
   const [mode, setMode] = useState(initialMode);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [loginFields, setLoginFields] = useState({ email: '', password: '' });
   const [signupFields, setSignupFields] = useState({ name: '', email: '', password: '' });
@@ -58,6 +61,46 @@ export default function AuthPage({ initialMode }: AuthPageProps) {
 
   const email = isLogin ? loginFields.email : signupFields.email;
   const password = isLogin ? loginFields.password : signupFields.password;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      if (isLogin) {
+        const res = await signIn('credentials', { email, password, redirect: false });
+        if (res?.error) {
+          setError('Invalid email or password.');
+          return;
+        }
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        const r = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: signupFields.name, email, password }),
+        });
+        const data = await r.json();
+        if (!r.ok) {
+          setError(data.error ?? 'Could not create account.');
+          return;
+        }
+        const res = await signIn('credentials', { email, password, redirect: false });
+        if (res?.error) {
+          setError('Account created — please log in.');
+          switchMode('login');
+          return;
+        }
+        router.push('/onboarding');
+        router.refresh();
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -99,7 +142,7 @@ export default function AuthPage({ initialMode }: AuthPageProps) {
             </AnimatePresence>
 
             {/* Form */}
-            <form className="mt-7" onSubmit={(e) => { e.preventDefault(); if (!isLogin) router.push('/onboarding'); }}>
+            <form className="mt-7" onSubmit={handleSubmit}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={mode}
@@ -164,18 +207,27 @@ export default function AuthPage({ initialMode }: AuthPageProps) {
                     </div>
                   </FieldBlock>
 
+                  {/* Error */}
+                  {error && (
+                    <p className="text-sm text-red-500" role="alert">
+                      {error}
+                    </p>
+                  )}
+
                   {/* Submit */}
                   <button
                     type="submit"
+                    disabled={submitting}
                     className={cn(
                       'w-full h-10 rounded-lg text-sm font-medium mt-2',
                       'bg-[var(--accent)] text-[var(--accent-fg)]',
                       'hover:bg-[var(--accent-hover)]',
                       'transition-all duration-150 active:translate-y-px',
-                      'flex items-center justify-center group'
+                      'flex items-center justify-center group',
+                      'disabled:opacity-60 disabled:pointer-events-none'
                     )}
                   >
-                    {isLogin ? 'Log in' : 'Create account'}
+                    {submitting ? 'Please wait…' : isLogin ? 'Log in' : 'Create account'}
                     <svg className="w-4 h-4 ml-1.5 transition-transform duration-150 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -192,8 +244,16 @@ export default function AuthPage({ initialMode }: AuthPageProps) {
 
               {/* Social */}
               <div className="mt-4 flex gap-3">
-                <SocialButton icon={<GoogleIcon />} label="Google" />
-                <SocialButton icon={<GitHubIcon />} label="GitHub" />
+                <SocialButton
+                  icon={<GoogleIcon />}
+                  label="Google"
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                />
+                <SocialButton
+                  icon={<GitHubIcon />}
+                  label="GitHub"
+                  onClick={() => setError('GitHub sign-in isn’t enabled yet — use email or Google.')}
+                />
               </div>
             </form>
 
@@ -304,10 +364,19 @@ function FieldBlock({ label, trailing, children }: { label: string; trailing?: R
   );
 }
 
-function SocialButton({ icon, label }: { icon: React.ReactNode; label: string }) {
+function SocialButton({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className={cn(
         'flex-1 h-10 rounded-lg text-sm font-medium',
         'bg-[var(--surface-1)] border border-[var(--border-color)]',

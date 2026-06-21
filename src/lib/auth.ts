@@ -8,6 +8,8 @@ import type { Role } from '@prisma/client';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  secret: process.env.AUTH_SECRET,
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/login',

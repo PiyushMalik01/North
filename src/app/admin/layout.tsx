@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -6,7 +8,15 @@ export const metadata = {
   description: 'Monitor and control the North platform.',
 };
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+// Always run the auth gate on the server — never statically serve admin.
+export const dynamic = 'force-dynamic';
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // Gate the entire admin surface behind the ADMIN role.
+  const session = await auth();
+  if (!session?.user) redirect('/login');
+  if ((session.user as { role?: string }).role !== 'ADMIN') redirect('/dashboard');
+
   return (
     <div className="min-h-[100dvh] bg-background text-foreground font-sans">
       <div className="flex">
