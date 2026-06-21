@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { seedCompletedNodeIds } from '@/data/platform/trace';
+import { fetchProgress, progressMutate } from '@/lib/platform/sync';
 
 /** XP needed per level (flat curve keeps the math legible). */
 export const XP_PER_LEVEL = 500;
@@ -8,6 +9,9 @@ export const levelFromXp = (xp: number) => Math.floor(xp / XP_PER_LEVEL) + 1;
 export const xpIntoLevel = (xp: number) => Math.round(((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100);
 
 export type AttributeKey = 'depth' | 'execution' | 'consistency' | 'collaboration' | 'clarity';
+
+// Module-level guard — prevents concurrent or repeated hydration calls.
+let hydrating = false;
 
 interface ProgressState {
   xp: number;
@@ -21,6 +25,9 @@ interface ProgressState {
   completedMaterialIds: string[];
   completedCourseIds: string[];
   attributes: Record<AttributeKey, number>;
+
+  /** Fetch server progress once; subsequent calls are no-ops. */
+  hydrate: () => Promise<void>;
 
   // actions
   addXp: (amount: number) => void;
@@ -58,15 +65,36 @@ const initial = {
 /**
  * The player's living progress — shared across trace, prove, spark, drift, halo.
  * Completing a prove unlocks a node, grants xp, and can light up gleams; everything
- * reads from here so the zones interconnect. Persisted to localStorage.
+ * reads from here so the zones interconnect. Persisted to localStorage for logged-out
+ * users; hydrated from the server when authenticated.
  */
 export const useProgressStore = create<ProgressState>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         ...initial,
 
-        addXp: (amount) => set((s) => ({ xp: s.xp + amount })),
+        hydrate: async () => {
+          if (hydrating) return;
+          hydrating = true;
+          try {
+            const data = await fetchProgress();
+            // Only overwrite the server-backed fields; leave local-only fields untouched.
+            set({
+              xp: data.xp,
+              completedMaterialIds: data.completedMaterialIds,
+              completedCourseIds: data.completedCourseIds,
+            });
+          } finally {
+            // Reset so progress re-hydrates when the auth state changes (e.g. login).
+            hydrating = false;
+          }
+        },
+
+        addXp: (amount) => {
+          set((s) => ({ xp: s.xp + amount }));
+          void progressMutate({ op: 'addXp', amount });
+        },
 
         completeNode: (nodeId, xp = 0) =>
           set((s) =>
@@ -75,7 +103,7 @@ export const useProgressStore = create<ProgressState>()(
               : { completedNodeIds: [...s.completedNodeIds, nodeId], xp: s.xp + xp },
           ),
 
-        toggleMaterial: (id, xp = 0) =>
+        toggleMaterial: (id, xp = 0) => {
           set((s) => {
             const done = s.completedMaterialIds.includes(id);
             return {
@@ -84,14 +112,21 @@ export const useProgressStore = create<ProgressState>()(
                 : [...s.completedMaterialIds, id],
               xp: done ? Math.max(0, s.xp - xp) : s.xp + xp,
             };
-          }),
+          });
+          // xp is read from current state inside set — pass the param directly
+          void progressMutate({ op: 'toggleMaterial', materialId: id, xp });
+        },
 
-        completeCourse: (courseId, xp) =>
-          set((s) =>
-            s.completedCourseIds.includes(courseId)
-              ? {}
-              : { completedCourseIds: [...s.completedCourseIds, courseId], xp: s.xp + xp },
-          ),
+        completeCourse: (courseId, xp) => {
+          // Guard: only write-through if not already completed (optimistic matches server)
+          if (!get().completedCourseIds.includes(courseId)) {
+            set((s) => ({
+              completedCourseIds: [...s.completedCourseIds, courseId],
+              xp: s.xp + xp,
+            }));
+            void progressMutate({ op: 'completeCourse', courseId, xp });
+          }
+        },
 
         passAssessment: (assessmentId, nodeId, xp) =>
           set((s) => {

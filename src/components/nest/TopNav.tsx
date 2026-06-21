@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import { useThemeStore } from '@/store/themeStore';
 import { usePlatformStore } from '@/store/platformStore';
 import { defaultFlags } from '@/data/platform/admin';
@@ -29,6 +30,7 @@ export function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
   const theme = useThemeStore((s) => s.theme);
+  const { data: session, status } = useSession();
 
   const flags = useSyncExternalStore(subscribeFlags, getFlags, getServerFlags);
   const zones = ZONES.filter((z) => flags[z.id] !== false);
@@ -36,6 +38,11 @@ export function TopNav() {
   const active = activeZone(pathname);
   const activeIndex = Math.max(0, zones.findIndex((z) => z.id === active?.id));
   const logo = theme === 'light' ? '/images/light_themelogo.svg' : '/images/dark_themelogo.svg';
+
+  const initial =
+    status === 'authenticated'
+      ? (session?.user?.name?.[0] ?? session?.user?.email?.[0] ?? '?').toUpperCase()
+      : null;
 
   return (
     <header
@@ -73,6 +80,31 @@ export function TopNav() {
           onSelect={(_, href) => router.push(href)}
         />
       </div>
+
+      {/* Account control */}
+      {status === 'authenticated' ? (
+        <button
+          onClick={() => void signOut({ callbackUrl: '/' })}
+          title="Sign out"
+          className="ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-opacity duration-150 hover:opacity-75"
+          style={{
+            background: 'var(--scene-card-border)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--scene-card-border)',
+          }}
+          aria-label="Sign out"
+        >
+          {initial}
+        </button>
+      ) : status === 'unauthenticated' ? (
+        <Link
+          href="/login"
+          className="ml-1 shrink-0 text-xs font-semibold transition-opacity duration-150 hover:opacity-75"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          log in
+        </Link>
+      ) : null}
 
       <ThemeToggle />
     </header>
