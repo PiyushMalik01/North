@@ -12,13 +12,13 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as DisconnectRequest;
     if (body.method === 'api_key') {
-      clearOpenAIKey();
+      await clearOpenAIKey();
     } else {
-      clearChatGPTConnection();
+      await clearChatGPTConnection();
     }
   } catch {
-    clearOpenAIKey();
-    clearChatGPTConnection();
+    await clearOpenAIKey();
+    await clearChatGPTConnection();
   }
   return NextResponse.json({ success: true });
 }

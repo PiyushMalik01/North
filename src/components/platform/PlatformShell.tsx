@@ -29,6 +29,14 @@ export default function PlatformShell({ children }: PlatformShellProps) {
       pathname.startsWith(path)
     )?.[1] ?? 'North';
 
+  // The new polar zones render their own full-screen shell — no SaaS chrome.
+  // Only the legacy SaaS pages keep the sidebar; everything else is a zone.
+  const legacyShellPaths = ['/skills', '/codespaces', '/diagnostic', '/profile'];
+  const usesLegacyShell = legacyShellPaths.some((p) => pathname.startsWith(p));
+  if (!usesLegacyShell) {
+    return <>{children}</>;
+  }
+
   const isFullscreen = pathname.startsWith('/skills') || pathname.startsWith('/codespaces');
 
   return (

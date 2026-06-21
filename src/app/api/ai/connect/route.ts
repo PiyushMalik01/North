@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'API key required.' }, { status: 400 });
       }
       const key = body.key.trim();
-      setOpenAIKey(key);
+      await setOpenAIKey(key);
       return NextResponse.json({
         maskedKey: key.slice(0, 5) + '...' + key.slice(-4),
       });

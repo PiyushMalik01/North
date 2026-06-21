@@ -123,14 +123,42 @@ export interface PaginatedResponse<T> {
 }
 
 // Onboarding Types
+export type YearValue = '1st' | '2nd' | '3rd' | '4th' | 'grad';
+
 export interface OnboardingData {
   name: string;
   college: string;
-  year: '1st' | '2nd' | '3rd' | '4th' | 'grad';
-  interests: string[];
-  learningStyle: LearningStyleSliders;
-  personalitySwipes: Record<string, boolean>;
-  goal: 'internship' | 'placements' | 'exploring' | '';
+  year: YearValue;
+  loves: string[]; // love-card ids swiped right → interests
+  choices: Record<string, DilemmaSide>; // dilemma id → chosen side
+  norAnswers: {
+    interestFocus?: string;
+    level?: string;
+    timeline?: string;
+  };
+}
+
+export type DilemmaSide = 'blue' | 'red';
+
+export interface LoveCard {
+  id: string;
+  statement: string;
+  domains: string[]; // SKILL_CATEGORIES this card maps to
+}
+
+export interface Dilemma {
+  id: string;
+  prompt: string;
+  blue: string;
+  red: string;
+}
+
+export interface OnboardingProfile {
+  buildStyle: 'ship' | 'deep' | null;
+  learnStyle: 'guided' | 'explore' | null;
+  goalLean: 'career' | 'maker' | null;
+  pace: 'intense' | 'measured' | null;
+  interests: string[]; // domain names, ranked
 }
 
 export interface LearningStyleSliders {

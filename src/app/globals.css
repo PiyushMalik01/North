@@ -41,6 +41,16 @@
   --skill-completed:     #22C55E;
   --skill-in-progress:   #EFC028;
 
+  /* ── polar scene (nest background) ── */
+  --scene-bg:            #141417;  /* chrome black */
+  --scene-ice:           #F1FAEE;  /* frost white */
+  --scene-card:          rgba(255, 255, 255, 0.06);  /* frosted glass — lighter than chrome */
+  --scene-card-border:   rgba(255, 255, 255, 0.12);
+  --scene-card-blur:     blur(16px) saturate(140%);
+  --scene-card-highlight: rgba(255, 255, 255, 0.22); /* light catching the top edge */
+  --scene-card-sheen:    rgba(255, 255, 255, 0.05);  /* faint diagonal gloss */
+  --scene-card-shadow:   0 10px 34px rgba(0, 0, 0, 0.30); /* ambient lift */
+
   --font-primary: var(--font-roboto-condensed);
   --font-logo: var(--font-oswald);
 
@@ -111,6 +121,16 @@
   --skill-unlocked:      #2563EB;
   --skill-completed:     #16A34A;
   --skill-in-progress:   #D4A017;
+
+  /* ── polar scene (nest background) — inverted ── */
+  --scene-bg:            #F1FAEE;  /* frost white */
+  --scene-ice:           #212529;  /* coal black */
+  --scene-card:          rgba(255, 255, 255, 0.55);  /* frosted glass panel */
+  --scene-card-border:   rgba(0, 0, 0, 0.08);
+  --scene-card-blur:     blur(16px) saturate(140%);
+  --scene-card-highlight: rgba(255, 255, 255, 0.9);  /* light catching the top edge */
+  --scene-card-sheen:    rgba(255, 255, 255, 0.4);   /* faint diagonal gloss */
+  --scene-card-shadow:   0 10px 30px rgba(0, 0, 0, 0.10); /* ambient lift */
 
   /* ── shadcn light ── */
   --card: #FFFFFF;

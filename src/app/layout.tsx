@@ -3,6 +3,7 @@ import { Roboto_Condensed, Oswald, Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { ThemeTransition } from "@/components/shared/ThemeTransition";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -62,7 +63,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <ThemeTransition />
-          {children}
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
       </body>
     </html>

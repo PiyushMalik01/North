@@ -1,60 +1,77 @@
-interface AIConnectionConfig {
+import { prisma } from '@/lib/prisma';
+
+/**
+ * AI connection config is persisted in the `AIConfig` table (Supabase Postgres)
+ * as a single `singleton` row, so keys survive dev hot-reloads and restarts.
+ */
+
+const SINGLETON_ID = 'singleton';
+const DEFAULT_MODEL = 'gpt-4o-mini';
+
+export interface AIConnectionConfig {
   openaiApiKey: string | null;
   chatgptAccessToken: string | null;
   chatgptAccountId: string | null;
   model: string;
 }
 
-const DEFAULT_CONFIG: AIConnectionConfig = {
+const FALLBACK_CONFIG: AIConnectionConfig = {
   openaiApiKey: null,
   chatgptAccessToken: null,
   chatgptAccountId: null,
-  model: 'gpt-4o-mini',
+  model: DEFAULT_MODEL,
 };
 
-const GLOBAL_KEY = '__north_ai_config__' as const;
-
-function getConfig(): AIConnectionConfig {
-  if (!(globalThis as Record<string, unknown>)[GLOBAL_KEY]) {
-    (globalThis as Record<string, unknown>)[GLOBAL_KEY] = { ...DEFAULT_CONFIG };
-  }
-  return (globalThis as Record<string, unknown>)[GLOBAL_KEY] as AIConnectionConfig;
+async function readConfig(): Promise<AIConnectionConfig> {
+  const row = await prisma.aIConfig.findUnique({ where: { id: SINGLETON_ID } });
+  if (!row) return { ...FALLBACK_CONFIG };
+  return {
+    openaiApiKey: row.openaiApiKey,
+    chatgptAccessToken: row.chatgptAccessToken,
+    chatgptAccountId: row.chatgptAccountId,
+    model: row.model,
+  };
 }
 
-export function getAIConfig(): Readonly<AIConnectionConfig> {
-  return { ...getConfig() };
+async function writeConfig(patch: Partial<AIConnectionConfig>): Promise<void> {
+  await prisma.aIConfig.upsert({
+    where: { id: SINGLETON_ID },
+    create: { id: SINGLETON_ID, model: DEFAULT_MODEL, ...patch },
+    update: patch,
+  });
 }
 
-export function setOpenAIKey(apiKey: string): void {
-  getConfig().openaiApiKey = apiKey;
+export async function getAIConfig(): Promise<Readonly<AIConnectionConfig>> {
+  return readConfig();
 }
 
-export function setChatGPTConnection(accessToken: string, accountId: string): void {
-  const cfg = getConfig();
-  cfg.chatgptAccessToken = accessToken;
-  cfg.chatgptAccountId = accountId;
+export async function setOpenAIKey(apiKey: string): Promise<void> {
+  await writeConfig({ openaiApiKey: apiKey });
 }
 
-export function clearOpenAIKey(): void {
-  getConfig().openaiApiKey = null;
+export async function setChatGPTConnection(accessToken: string, accountId: string): Promise<void> {
+  await writeConfig({ chatgptAccessToken: accessToken, chatgptAccountId: accountId });
 }
 
-export function clearChatGPTConnection(): void {
-  const cfg = getConfig();
-  cfg.chatgptAccessToken = null;
-  cfg.chatgptAccountId = null;
+export async function clearOpenAIKey(): Promise<void> {
+  await writeConfig({ openaiApiKey: null });
 }
 
-export function setModel(model: string): void {
-  getConfig().model = model;
+export async function clearChatGPTConnection(): Promise<void> {
+  await writeConfig({ chatgptAccessToken: null, chatgptAccountId: null });
 }
 
-export function getModel(): string {
-  return getConfig().model;
+export async function setModel(model: string): Promise<void> {
+  await writeConfig({ model });
 }
 
-export function getConnectionStatus() {
-  const cfg = getConfig();
+export async function getModel(): Promise<string> {
+  const cfg = await readConfig();
+  return cfg.model;
+}
+
+export async function getConnectionStatus() {
+  const cfg = await readConfig();
   return {
     oauth: { connected: cfg.chatgptAccessToken !== null },
     apiKey: {
@@ -67,8 +84,8 @@ export function getConnectionStatus() {
   };
 }
 
-export function getActiveProvider(): 'openai' | 'chatgpt' | null {
-  const cfg = getConfig();
+export async function getActiveProvider(): Promise<'openai' | 'chatgpt' | null> {
+  const cfg = await readConfig();
   if (cfg.openaiApiKey) return 'openai';
   if (cfg.chatgptAccessToken) return 'chatgpt';
   return null;

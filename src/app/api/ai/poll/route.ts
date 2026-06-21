@@ -108,8 +108,9 @@ export async function POST(request: Request) {
       }
     }
 
-    setChatGPTConnection(tokenData.access_token, accountId);
-    setModel('gpt-5.4');
+    await setChatGPTConnection(tokenData.access_token, accountId);
+    // gpt-5.2 is supported on ChatGPT Go/Plus via Codex; change in /admin if your plan differs.
+    await setModel('gpt-5.2');
 
     return NextResponse.json({ status: 'connected' });
   } catch (err) {

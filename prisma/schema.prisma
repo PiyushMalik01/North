@@ -37,6 +37,14 @@ model User {
   quests          UserQuest[]
   activityLog     ActivityLog[]
 
+  // huddle
+  memberships  Membership[]
+  posts        Post[]
+  comments     Comment[]
+  votes        Vote[]
+  threads      ThreadParticipant[]
+  messages     Message[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -78,6 +86,18 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+// ─── AI Connection Config (admin panel, singleton) ────────
+
+model AIConfig {
+  id                 String  @id @default("singleton")
+  openaiApiKey       String? @db.Text
+  chatgptAccessToken String? @db.Text
+  chatgptAccountId   String?
+  model              String  @default("gpt-4o-mini")
+
+  updatedAt DateTime @updatedAt
 }
 
 // ─── User Profile (from onboarding) ───────────────────────
@@ -332,4 +352,131 @@ model ActivityLog {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+// ─── Huddle: Communities (rooms) ──────────────────────────
+
+model Community {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  createdAt   DateTime @default(now())
+
+  members Membership[]
+  posts   Post[]
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  communityId String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime  @default(now())
+
+  @@unique([userId, communityId])
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  communityId String
+  authorId    String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  title     String
+  body      String   @db.Text
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  comments Comment[]
+  votes    Vote[]
+
+  @@index([communityId, createdAt])
+}
+
+model Comment {
+  id       String  @id @default(cuid())
+  postId   String
+  authorId String
+  parentId String?
+
+  post   Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  body      String   @db.Text
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  votes Vote[]
+
+  @@index([postId, createdAt])
+}
+
+model Vote {
+  id        String  @id @default(cuid())
+  userId    String
+  postId    String?
+  commentId String?
+  value     Int // -1 or 1
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+}
+
+// ─── Huddle: Chat ─────────────────────────────────────────
+
+enum ThreadType {
+  DM
+  GROUP
+}
+
+model Thread {
+  id            String     @id @default(cuid())
+  type          ThreadType @default(DM)
+  name          String?
+  createdAt     DateTime   @default(now())
+  lastMessageAt DateTime   @default(now())
+
+  participants ThreadParticipant[]
+  messages     Message[]
+
+  @@index([lastMessageAt])
+}
+
+model ThreadParticipant {
+  id       String @id @default(cuid())
+  threadId String
+  userId   String
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lastReadMessageId String?
+  joinedAt          DateTime @default(now())
+
+  @@unique([threadId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id       String @id @default(cuid())
+  threadId String
+  senderId String
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  body      String   @db.Text
+  clientId  String? // optimistic-send dedupe
+  createdAt DateTime @default(now())
+
+  @@index([threadId, createdAt])
 }
