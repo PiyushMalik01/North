@@ -1,8 +1,11 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useThemeStore } from '@/store/themeStore';
+import { usePlatformStore } from '@/store/platformStore';
+import { defaultFlags } from '@/data/platform/admin';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ZONES, activeZone } from './zones';
 import { RollingTabs } from './RollingTabs';
@@ -10,6 +13,12 @@ import { RollingTabs } from './RollingTabs';
 const ITEM_W = 70;
 const BALL_D = 46;
 const BAR_H = 46;
+
+// Feature flags drive which zones appear — read hydration-safely so SSR matches
+// the client (server snapshot = defaults; client swaps in persisted flags post-hydration).
+const subscribeFlags = (cb: () => void) => usePlatformStore.subscribe(cb);
+const getFlags = () => usePlatformStore.getState().flags;
+const getServerFlags = () => defaultFlags;
 
 /**
  * The platform top bar: full-width, sticky, brand on the left, every zone in one
@@ -21,8 +30,11 @@ export function TopNav() {
   const router = useRouter();
   const theme = useThemeStore((s) => s.theme);
 
+  const flags = useSyncExternalStore(subscribeFlags, getFlags, getServerFlags);
+  const zones = ZONES.filter((z) => flags[z.id] !== false);
+
   const active = activeZone(pathname);
-  const activeIndex = Math.max(0, ZONES.findIndex((z) => z.id === active?.id));
+  const activeIndex = Math.max(0, zones.findIndex((z) => z.id === active?.id));
   const logo = theme === 'light' ? '/images/light_themelogo.svg' : '/images/dark_themelogo.svg';
 
   return (
@@ -52,7 +64,7 @@ export function TopNav() {
       {/* Zone row (rolling ball) */}
       <div className="min-w-0 flex-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <RollingTabs
-          items={ZONES}
+          items={zones}
           activeRoute={activeIndex}
           itemW={ITEM_W}
           ballD={BALL_D}

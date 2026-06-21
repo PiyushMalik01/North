@@ -8,7 +8,7 @@ import { mockNorth } from '@/data/gameData';
 
 export function MissionHero() {
   return (
-    <Squircle radius={34} smoothing={0.6} className="md:col-span-2 lg:col-span-3">
+    <Squircle radius={34} smoothing={0.6} className="md:col-span-2">
       <div className="p-6 sm:p-8 relative overflow-hidden">
         {/* Decorative ghosted ring */}
         <div

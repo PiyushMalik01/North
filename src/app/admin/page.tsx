@@ -1,10 +1,10 @@
-import { AIConnectionPanel } from '@/components/admin/AIConnectionPanel';
+import Overview from '@/components/admin/Overview';
 
 export const metadata = {
-  title: 'Admin — North',
-  description: 'Platform settings and AI configuration.',
+  title: 'Admin Overview — North',
+  description: 'Platform health at a glance.',
 };
 
 export default function AdminPage() {
-  return <AIConnectionPanel />;
+  return <Overview />;
 }

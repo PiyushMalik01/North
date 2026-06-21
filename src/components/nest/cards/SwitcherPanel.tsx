@@ -33,7 +33,7 @@ export function SwitcherPanel() {
   }
 
   return (
-    <Squircle shape="stadium" className="w-full">
+    <Squircle shape="stadium" className="w-full md:col-span-2">
       <div className="px-8 sm:px-10 py-5">
         {/* Header row */}
         <div className="flex items-center justify-between mb-3">
