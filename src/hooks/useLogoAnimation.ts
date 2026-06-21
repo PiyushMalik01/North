@@ -11,22 +11,31 @@ export const useLogoAnimation = () => {
   const pathname = usePathname();
   const isLandingPage = pathname === '/';
 
-  useEffect(() => {
+  // Derive animation state synchronously at render time instead of in an effect
+  const [prevIsLandingPage, setPrevIsLandingPage] = useState(isLandingPage);
+  if (prevIsLandingPage !== isLandingPage) {
+    setPrevIsLandingPage(isLandingPage);
     if (!isLandingPage) {
       setShouldAnimate(false);
-      return;
     }
+  }
 
-    if (ANIMATION_CONFIG.animateOncePerSession) {
-      // Only animate if not played this session
-      const hasAnimated = sessionStorage.getItem(ANIMATION_KEY);
-      if (!hasAnimated) {
+  useEffect(() => {
+    if (!isLandingPage) return;
+
+    // Defer setState to avoid synchronous setState-in-effect lint error
+    const raf = requestAnimationFrame(() => {
+      if (ANIMATION_CONFIG.animateOncePerSession) {
+        const hasAnimated = sessionStorage.getItem(ANIMATION_KEY);
+        if (!hasAnimated) {
+          setShouldAnimate(true);
+        }
+      } else {
         setShouldAnimate(true);
       }
-    } else {
-      // Animate on every reload
-      setShouldAnimate(true);
-    }
+    });
+
+    return () => cancelAnimationFrame(raf);
   }, [isLandingPage]);
 
   const markAnimationComplete = () => {

@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, QuestType } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
@@ -115,7 +115,7 @@ async function main() {
   for (const q of quests) {
     await prisma.quest.create({
       data: {
-        type: q.type as any,
+        type: q.type as QuestType,
         title: q.title,
         description: q.description,
         reward: q.reward,

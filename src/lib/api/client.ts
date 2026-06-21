@@ -65,7 +65,7 @@ class ApiClient {
     }
   }
 
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.post<ApiResponse<T>>(url, data, config);
       return response.data;
@@ -74,7 +74,7 @@ class ApiClient {
     }
   }
 
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.put<ApiResponse<T>>(url, data, config);
       return response.data;
@@ -83,7 +83,7 @@ class ApiClient {
     }
   }
 
-  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.patch<ApiResponse<T>>(url, data, config);
       return response.data;
@@ -101,7 +101,7 @@ class ApiClient {
     }
   }
 
-  private handleError(error: any): ApiResponse<never> {
+  private handleError(error: unknown): ApiResponse<never> {
     if (axios.isAxiosError(error)) {
       return {
         success: false,

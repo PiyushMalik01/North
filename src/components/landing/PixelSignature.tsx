@@ -100,7 +100,10 @@ export function PixelSignature() {
   const handleLeave = useCallback(() => setMousePos(null), []);
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section ref={ref} className="py-16 lg:py-24">

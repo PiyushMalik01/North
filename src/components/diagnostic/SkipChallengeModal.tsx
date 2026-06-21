@@ -28,14 +28,18 @@ export function SkipChallengeModal({
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showFeedback, setShowFeedback] = useState(false);
 
-  useEffect(() => {
+  // Reset state synchronously at render time when the modal opens or the skill changes
+  const [prevOpenKey, setPrevOpenKey] = useState(`${open}:${skill.slug}`);
+  const openKey = `${open}:${skill.slug}`;
+  if (prevOpenKey !== openKey) {
+    setPrevOpenKey(openKey);
     if (open) {
       setPhase('questions');
       setCurrent(0);
       setAnswers({});
       setShowFeedback(false);
     }
-  }, [open, skill.slug]);
+  }
 
   useEffect(() => {
     if (!open) return;

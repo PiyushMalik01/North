@@ -16,7 +16,6 @@ function AnimatedValue({ value, suffix = '' }: { value: string; suffix?: string 
 
   useEffect(() => {
     if (!inView || !target) {
-      if (!target) setDisplay(value);
       return;
     }
 

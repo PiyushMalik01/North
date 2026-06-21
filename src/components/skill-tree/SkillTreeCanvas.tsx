@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import {
   computeLayout,
@@ -101,7 +101,7 @@ export default function SkillTreeCanvas({
     setIsDragging(false);
   }
 
-  function zoom(direction: 1 | -1) {
+  const zoom = useCallback((direction: 1 | -1) => {
     setTransform((prev) => ({
       ...prev,
       scale: Math.min(
@@ -109,7 +109,16 @@ export default function SkillTreeCanvas({
         MAX_ZOOM
       ),
     }));
-  }
+  }, []);
+
+  const canvasControls = useMemo(
+    () => [
+      { icon: FiZoomIn, label: 'Zoom in', action: () => zoom(1) },
+      { icon: FiZoomOut, label: 'Zoom out', action: () => zoom(-1) },
+      { icon: FiMaximize2, label: 'Reset view', action: centerView },
+    ],
+    [zoom, centerView]
+  );
 
   const selectedNode = selectedNodeId ? nodeMap.get(selectedNodeId) ?? null : null;
   const selectedStatus = selectedNodeId
@@ -191,11 +200,8 @@ export default function SkillTreeCanvas({
         className="absolute bottom-4 right-4 z-10 flex flex-col gap-1"
         data-canvas-control
       >
-        {[
-          { icon: FiZoomIn, label: 'Zoom in', action: () => zoom(1) },
-          { icon: FiZoomOut, label: 'Zoom out', action: () => zoom(-1) },
-          { icon: FiMaximize2, label: 'Reset view', action: centerView },
-        ].map(({ icon: Icon, label, action }) => (
+        {/* eslint-disable-next-line react-hooks/refs -- actions only access refs inside onClick callbacks, never during render */}
+        {canvasControls.map(({ icon: Icon, label, action }) => (
           <button
             key={label}
             onClick={action}

@@ -45,6 +45,10 @@ model User {
   threads      ThreadParticipant[]
   messages     Message[]
 
+  // content progress (CMS-driven learning)
+  materialProgress UserMaterialProgress[]
+  courseProgress   UserCourseProgress[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -479,4 +483,127 @@ model Message {
   createdAt DateTime @default(now())
 
   @@index([threadId, createdAt])
+}
+
+// ─── Content (CMS: Topic → Course → Material, + Roadmaps) ──
+
+model Topic {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  blurb     String
+  sortOrder Int      @default(0)
+
+  courses  Course[]
+  roadmaps Roadmap[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Course {
+  id        String      @id @default(cuid())
+  topicId   String
+  topic     Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  title     String
+  level     CourseLevel @default(BEGINNER)
+  summary   String
+  tags      String[]
+  xp        Int         @default(100)
+  proveId   String? // pointer to an assessment id (prove)
+  sortOrder Int         @default(0)
+
+  materials Material[]
+  steps     RoadmapStep[]
+  progress  UserCourseProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topicId, sortOrder])
+}
+
+enum MaterialType {
+  VIDEO
+  ARTICLE
+  DOC
+  LINK
+  EXERCISE
+}
+
+model Material {
+  id        String       @id @default(cuid())
+  courseId  String
+  course    Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  type      MaterialType @default(VIDEO)
+  title     String
+  url       String       @default("#")
+  minutes   Int          @default(10)
+  sortOrder Int          @default(0)
+
+  progress UserMaterialProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId, sortOrder])
+}
+
+model Roadmap {
+  id      String  @id @default(cuid())
+  title   String
+  blurb   String
+  topicId String?
+  topic   Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  steps RoadmapStep[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RoadmapStep {
+  id        String  @id @default(cuid())
+  roadmapId String
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  note      String?
+  order     Int     @default(0)
+
+  @@index([roadmapId, order])
+}
+
+// per-user content progress
+
+model UserMaterialProgress {
+  id         String @id @default(cuid())
+  userId     String
+  materialId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime @default(now())
+
+  @@unique([userId, materialId])
+  @@index([userId])
+}
+
+model UserCourseProgress {
+  id       String @id @default(cuid())
+  userId   String
+  courseId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@index([userId])
 }

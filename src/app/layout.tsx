@@ -21,6 +21,7 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: "North : Learn The right way",
   description: "Transform learning into skill mastery with AI-driven skill intelligence and structured progression.",
   icons: {

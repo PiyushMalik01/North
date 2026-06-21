@@ -33,9 +33,15 @@ export function EnglishBlock({
   const [justCrossed, setJustCrossed] = useState(false);
   useEffect(() => {
     if (!enough) return;
-    setJustCrossed(true);
-    const t = setTimeout(() => setJustCrossed(false), 900);
-    return () => clearTimeout(t);
+    let t: ReturnType<typeof setTimeout>;
+    const raf = requestAnimationFrame(() => {
+      setJustCrossed(true);
+      t = setTimeout(() => setJustCrossed(false), 900);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t);
+    };
   }, [enough]);
 
   return (

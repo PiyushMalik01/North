@@ -57,7 +57,7 @@ export function PixelGrid() {
     let cols = 0;
     let rows = 0;
     let pixels: Pixel[] = [];
-    let waves: Wave[] = [];
+    const waves: Wave[] = [];
     let time = 0;
 
     const isLight = () => document.documentElement.classList.contains('light');
